@@ -1,64 +1,105 @@
 # Bitcoin Wallet Simulator (Testnet)
 
-A non-custodial Bitcoin testnet wallet built with Python, using a modular architecture for secure key generation, balance checking, and transaction sending via the Blockcypher API. Ideal for learning Bitcoin wallet mechanics and fintech applications.
+A non-custodial Bitcoin testnet wallet CLI built with Python. It demonstrates secure key generation, balance checking, and transaction sending using the Blockcypher API. Modular architecture with separate modules for wallet, blockchain, and transaction logic.
 
-## Setup
+Ideal for learning Bitcoin mechanics, fintech development, and Web3 concepts.
 
-1. **Install Dependencies**:
-   - Install required libraries: `pip install -r requirements.txt`
-   - Ensure Python 3.8+ is installed.
+## Features
 
-2. **Set Blockcypher API Token**:
-   - Sign up at https://accounts.blockcypher.com/ to get a free testnet API token.
-   - Set the token as an environment variable:
-     - **Linux/macOS**: `export BLOCKCYPHER_API_TOKEN="your_token"`
-     - **Windows (Git Bash)**: `export BLOCKCYPHER_API_TOKEN="your_token"`
-     - **Windows (Command Prompt)**: `set BLOCKCYPHER_API_TOKEN=your_token`
-     - **Windows (PowerShell)**: `$env:BLOCKCYPHER_API_TOKEN="your_token"`
+- Generate new SegWit testnet wallets (BIP-84 derivation)
+- Check real-time balance via Blockcypher
+- Send signed transactions with proper witness data
+- Interactive web demo via Streamlit (browser-based CLI)
 
-3. **Run the Wallet**:
-   - Check available commands: `python btc_wallet.py --help`
+## Quick Start
+
+1. **Clone the repo**
+
+```bash
+git clone https://github.com/yourusername/btc-wallet.git
+cd btc-wallet
+```
+
+2. **Set up virtual environment**
+
+```bash
+python -m venv env
+env\Scripts\activate   # Windows
+# or source env/bin/activate   # macOS/Linux
+```
+
+3. **Install dependencies**
+
+```bash
+pip install -r requirements.txt
+```
+
+4. **Set Blockcypher API token**
+   Create a `.env` file:
+
+```bash
+BLOCKCYPHER_API_TOKEN=your_token_here
+```
+
+(Get free testnet token at https://accounts.blockcypher.com/)
+
+5. **Run the CLI**
+
+```bash
+python btc_wallet.py --help
+```
+
+Example commands:
+
+```bash
+python btc_wallet.py generate_wallet
+python btc_wallet.py check_balance tb1q...
+python btc_wallet.py send-transaction --privatekey c... tb1q... 0.0001
+```
+
+6. **Run the Web Demo**
+
+```bash
+streamlit run app.py
+```
+
+Open http://localhost:8501
 
 ## Commands
 
-- **Generate Wallet**:
-  - Command: `python btc_wallet.py generate_wallet`
-  - Output: Testnet SegWit address (starts with `tb1q`), WIF key (starts with `c`), mnemonic phrase.
-  - Example: `Address: tb1q7zqrz..., WIF: c..., Mnemonic: apple banana ...`
+| Command                   | Description                      | Example                                                                  |
+| ------------------------- | -------------------------------- | ------------------------------------------------------------------------ |
+| `generate_wallet`         | Create new testnet SegWit wallet | `python btc_wallet.py generate_wallet`                                   |
+| `check_balance <address>` | Show balance in BTC              | `python btc_wallet.py check_balance tb1q...`                             |
+| `send-transaction`        | Send BTC with WIF private key    | `python btc_wallet.py send-transaction --privatekey c... tb1q... 0.0001` |
 
-- **Check Balance**:
-  - Command: `python btc_wallet.py check_balance <address>`
-  - Output: Balance in BTC.
-  - Example: `Balance: 0.00002500 BTC`
+**Warning**: Always save mnemonic and WIF key securely — they control funds on testnet.
 
-- **Send Transaction**:
-  - Command: `python btc_wallet.py send-transaction --wif <wif_key> <receiver> <amount>`
-  - Output: Transaction ID (TxID).
-  - Example: `TxID: 5c61f8fc...` (sends to `tb1qf3qfrm...`)
+## Technical Stack
 
-## Technical Details
+- **bitcoinlib**: Key generation, signing, BIP-32/39/84
+- **click**: CLI interface
+- **requests**: Blockcypher API calls
+- **streamlit**: Interactive web demo
+- **dotenv**: Environment variable loading
 
-- **Wallet**: Generates P2WPKH (SegWit) addresses using BIP-84 derivation path `m/84'/1'/0'/0/0` for testnet (`tb1q`). Uses BIP-39 for mnemonic phrases and BIP-32 for key derivation.
-- **Transactions**: Creates P2WPKH transactions with witness data (sig_pubkey: signature and public key) for secure, low-fee transfers.
-- **Dependencies**:
-  - `bitcoinlib`: For key generation and transaction signing.
-  - `click`: For CLI interface.
-  - `requests`: For Blockcypher API queries.
-- **Fee**: Minimum 0.000005 BTC (500 satoshis); ensure amount + fee ≤ balance.
-- **UTXO Confirmation**: Transactions require confirmed UTXOs (10-60 minutes on testnet).
+## Security & Warnings
+
+- Testnet only — no real value at risk
+- Never share mnemonic or WIF key
+- Use only with testnet addresses (tb1q...)
+- API rate limit: ~2000 req/day with token
+
+## Live Demo
+
+Coming soon: [https://karlalhw.com/btc-wallet-demo](https://karla.com/btc-wallet-demo)
+
+(Updates automatically via GitHub Actions when code is pushed)
 
 ## Troubleshooting
 
-- **API Timeouts**: Set a valid `BLOCKCYPHER_API_TOKEN`, check network, or retry later.
-- **Invalid SegWit Transaction (HTTP 400 Bad Request)**:
-  - **Cause**: Invalid witness data (e.g., incorrect sig_pubkey due to wrong WIF key or UTXOs).
-  - **Solution**: Verify WIF key matches sending address, ensure valid UTXOs via Blockcypher API, check `bitcoinlib` configuration (`network="testnet", witness_type="segwit"`).
-- **Rate Limits**: ~2000 requests/day, 6/sec with token. Contact Blockcypher if needed.
+- **ModuleNotFoundError**: Run pip install -r requirements.txt
+- **Invalid transaction (HTTP 400)**: Check WIF key, UTXO confirmation (10–60 min), and witness type (segwit)
+- **API errors**: Verify token, check Blockcypher status, or retry later
 
-## Security
-
-- **Mnemonic**: Save your mnemonic phrase offline securely. It’s required to recover your wallet.
-- **WIF Key**: Controls one address; keep it private.
-- **Testnet**: Uses testnet Bitcoin (no real value), safe for testing.
-
-**WARNING**: Never share your mnemonic or WIF key. Use only on testnet.
+Contributions, issues, and suggestions welcome!
